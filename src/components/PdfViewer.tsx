@@ -3,21 +3,21 @@ import * as pdfjsLib from 'pdfjs-dist';
 import '../pdfWorker/pdfWorker';
 import { PdfPage } from './PdfPage';
 import { FragmentList } from './FragmentList';
+import { v4 } from 'uuid';
+import { PDFPageProxy } from 'pdfjs-dist/types/src/display/api';
 
 interface Props {
   fileUrl: string;
 }
 
 export const PdfViewer = ({ fileUrl }: Props) => {
-  const [loading, setLoading] = useState(true);
-  const [pages, setPages] = useState<any[]>([]);
-  const [fragments, setFragmets] = useState<string[]>([]);
+  const [pages, setPages] = useState<PDFPageProxy[]>([]);
 
   useEffect(() => {
     const renderPDF = async () => {
       const loadingTask = pdfjsLib.getDocument(fileUrl);
       const pdf = await loadingTask.promise;
-
+      
       const pageList = [];
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
@@ -25,31 +25,21 @@ export const PdfViewer = ({ fileUrl }: Props) => {
       };
 
         setPages(pageList)
-        setLoading(false);
     };
     renderPDF();
   }, [fileUrl]);
 
-  const handleFragmentsAdd = (base64: string ) => {
-    setFragmets(prev => [...prev, base64])
-  }
-
   return (
     <div style={{ display: 'flex', gap: '20px' }}>
       <div style={{ flex: 1 }}>
-        {loading && <p>Загрузка PDF...</p>}
-          {pages.map((page, index) => (
-            <PdfPage 
-              key={Math.random() * 100} 
-              page={page} 
-              pageNum={index + 1} 
-              onApplyFragment={handleFragmentsAdd} />
+          {pages.map((page) => (
+            <PdfPage key={v4()} page={page} />
           ))}
       </div>
 
       <div style={{ flex: 1 }}>
-          <h3>Fragments</h3>
-          <FragmentList fragments={fragments} />
+          <h2 style={{margin: '0 0 10px'}}>Fragments:</h2>
+          <FragmentList />
       </div>
     </div>
   );

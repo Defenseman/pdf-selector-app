@@ -9,11 +9,10 @@ function App() {
 
   return (
     <div>
-      <h1>PDF Viewer</h1>
       {fileUrl ? (
         <PdfViewer fileUrl={fileUrl} />
       ) : (
-        <p>Не передан параметр fileName в URL</p>
+        <p style={{color: 'red'}}>Не передан параметр fileName в URL</p>
       )}
     </div>
   );
